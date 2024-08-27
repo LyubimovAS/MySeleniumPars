@@ -81,10 +81,25 @@ def get_name_player(event_id: List[str]) -> dict:
     return name_players_dict
 
 
+def get_time(event_id: List[str]) -> dict:
+    """
+    Создает словарь ид событий и время.
 
+    :param event_id: ID событий
+    :return: время
+    """
+    id_time = {}
+    for id in event_id:
+        id_game = driver.find_elements(By.XPATH, f'//div[starts-with(@data-role, "event-id-{id}")]')
+        for game_person in id_game:
+            player_elements = game_person.find_element(By.XPATH, './/span[contains(@class, "Text_base--RfU") and contains(@class, "Text_general--tM6") and contains(@class, "Text_f_xs--DFC") and contains(@class, "Text_center--H1r")]')
+            id_time[id] = player_elements.text
+    return id_time
 
 event_id = get_event_id()
 print(event_id)
 name_players= get_name_player(event_id)
 print(name_players)
 print(name_players['41248708'])
+
+print(get_time(event_id))
