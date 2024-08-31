@@ -5,6 +5,8 @@ from typing import List
 from selenium.webdriver.remote.webelement import WebElement
 import os
 
+
+
 # Запуск драйвера Chrome
 driver = webdriver.Chrome()
 
@@ -96,10 +98,113 @@ def get_time(event_id: List[str]) -> dict:
             id_time[id] = player_elements.text
     return id_time
 
-event_id = get_event_id()
-print(event_id)
-name_players= get_name_player(event_id)
-print(name_players)
-print(name_players['41248708'])
 
-print(get_time(event_id))
+def get_linc(event_id: List[str]) -> dict:
+    linc = {}
+
+    for id in event_id:
+        id_game = driver.find_elements(By.XPATH, f'//div[starts-with(@data-role, "event-id-{id}")]')
+        for game_linc in id_game:
+            linc_game = game_linc.find_element(By.XPATH, './/div[contains(@class, "Box_box--BuJ") and contains(@class, "EventParticipants_event--M6q") and contains(@class, "EventParticipants_table--ZqR")]')
+            linc[id] = linc_game
+    return linc
+
+
+def split_find_elem(find_class, begin):
+    text_find = ''
+    if begin == 'span':
+        text_find = './/span['
+    elif begin == 'div':
+        text_find = './/div['
+    find_class = find_class.split(" ")
+
+    for i in range(len(find_class)):
+        if i == len(find_class) - 1:
+            text_find += f'contains(@class, "{find_class[i]}")]'
+        else:
+            text_find += f'contains(@class, "{find_class[i]}") and '
+    return text_find
+
+
+def get_total(url):
+    """
+    Создает словарь имен игроков для заданных событий.
+
+    :param event_id: ID событий
+    :return: Словарь с именами игроков, сгруппированными по событию  """
+
+    driver.get(url)
+    time.sleep(4)
+    id_total = []
+    total_list = []
+    text_class1 = 'Box_box--BuJ Box_wrap--DIP'
+    text_class2 = "OutcomeButton_coef--ZyE Text_base--RfU Text_general--tM6 Text_f_m--u3O Text_right--YmC Text_bold--b7X Text_l_normal--AeR"
+
+    ferst_find = driver.find_element(By.XPATH,
+                                     f'.//span[contains(@class, "Text_base--RfU") and contains(@class, "Text_general--tM6") and contains(@class, "Text_f_l--erO") and contains(@class, "Text_left--lRL") and contains(@class, "Text_l_normal--AeR") and text()="Тотал"]/../..')
+
+    second_find = ferst_find.find_element(By.XPATH, f'{split_find_elem(text_class1, "div")}')
+
+    finish = second_find.find_elements(By.XPATH, f'{split_find_elem(text_class2, "span")}')
+
+    for i in finish:
+        id_total.append(i)
+        total_list.append(i.text)
+    return total_list[-1], id_total[-1]
+
+def time_to_seconds(time_str: str) -> int:
+    """
+    Преобразует строку времени в секунды.
+
+    :param time_str: Время в формате 'MM:SS'
+    :return: Время в секундах
+    """
+    minutes, seconds = map(int, time_str.split(':'))
+    return minutes * 60 + seconds
+
+
+def is_time_in_range(time_str: str, min_time: str, max_time: str) -> bool:
+    """
+    Проверяет, находится ли время в заданном диапазоне.
+
+    # Пример использования
+    # time_str = '8:09'
+    # min_time = '65:00'
+    # max_time = '70:00'
+
+    :param time_str: Время для проверки в формате 'MM:SS'
+    :param min_time: Минимальное время в формате 'MM:SS'
+    :param max_time: Максимальное время в формате 'MM:SS'
+    :return: True, если время в диапазоне, иначе False
+    """
+    time_sec = time_to_seconds(time_str)
+    min_sec = time_to_seconds(min_time)
+    max_sec = time_to_seconds(max_time)
+    return min_sec <= time_sec <= max_sec
+
+event_id = get_event_id() 
+print(event_id)
+# name_players= get_name_player(event_id)
+# print(name_players)
+time_id = get_time(event_id)
+print(time_id)
+# param = get_linc(event_id)
+# param['41259167'].click()
+
+sort_id = []
+for key, value in time_id.items():
+    if value[0] == '(':
+        print(" ")
+    elif is_time_in_range(value, '75:00', '85:00') == True:
+        sort_id.append(key)
+
+
+summ = 0
+for pop in sort_id:
+    time.sleep(5)
+    # print(f"https://www.favbet.ua/uk/sports/event/soccer/{pop}/")
+    finish = get_total(f"https://www.favbet.ua/uk/sports/event/soccer/{pop}/")
+    print(finish)
+    summ += float(finish[0]) * 20
+
+print(summ)
