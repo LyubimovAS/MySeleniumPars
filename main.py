@@ -11,8 +11,8 @@ import os
 driver = webdriver.Chrome()
 
 # логин пароль
-username = 'san40dndz1@gmail.com'
-password = '9rzgx7uEU9'
+username = 'mail@gmail.com'
+password = 'pass'
 
 
 # вход в аккаунт
