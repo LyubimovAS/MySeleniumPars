@@ -7,8 +7,8 @@ import os
 # Запуск драйвера Chrome
 driver = webdriver.Chrome()
 
-username = 'san40dndz1@gmail.com'
-password = '9rzgx7uEU9'
+username = 'mailgmail.com'
+password = 'pass'
 
 
 def login(driver, username, password):
